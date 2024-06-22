@@ -30,7 +30,7 @@ const About = () => {
                                 </div>
                             </div>
                             <div className='md:p-5 p-3'>
-                                <button className='button mt-7  bg-yellow-400 text-black text-xs font-bold rounded-3xl w-28 h-8 md:h-12 md:w-36'>  <a href="./sam.pdf"></a> DOWNLOAD CV</button>
+                                <button className='button mt-7  bg-yellow-400 text-black md:text-sm text-xs font-bold rounded-3xl w-28 h-8 md:h-12 md:w-36'>  <a href="sam.pdf" download="download">Download CV</a></button>
 
                             </div>
 
