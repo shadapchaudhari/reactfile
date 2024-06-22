@@ -1,3 +1,24 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* styles.css */
+
+.nav-link {
+    @apply relative pb-1 transition-colors duration-300;
+  }
+  
+  .nav-link::after {
+    @apply content-[''] absolute bottom-0 left-0 w-full h-0.5 bg-yellow-500 transform scale-x-0 transition-transform duration-300 origin-bottom-right;
+  }
+  
+  .nav-link:hover::after {
+    @apply transform scale-x-100 origin-bottom-left;
+  }
+  
+  .nav-link:hover {
+    @apply text-yellow-500;
+  }
+
+  
+  

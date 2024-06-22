@@ -1,42 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import $ from 'jquery';
+import React, { useState } from 'react';
+import axios from 'axios';
+
 const Form = () => {
-    // State to store form values
     const [formData, setFormData] = useState({
         username: '',
         email: '',
         phone: ''
     });
 
-    // State to track form validation errors
     const [errors, setErrors] = useState({});
+    const [submissionStatus, setSubmissionStatus] = useState(null);
 
-    useEffect(() => {
-        const script = document.createElement('script');
-        script.src = 'https://code.jquery.com/jquery-3.6.0.min.js';
-        script.async = true;
-        document.body.appendChild(script);
-
-        return () => {
-            document.body.removeChild(script);
-        };
-    }, []);
-
-    // Function to handle form input changes
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({
-            ...formData,
-            [name]: value
-        });
-    };
-
-    // Function to handle form submission
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        // Validate form fields
+    const validateForm = () => {
         const validationErrors = {};
+
         if (!formData.username.trim()) {
             validationErrors.username = 'Username is required';
         }
@@ -51,51 +28,46 @@ const Form = () => {
             validationErrors.phone = 'Phone must be at least 10 characters long';
         }
 
-        // Set validation errors
-        setErrors(validationErrors);
+        return validationErrors;
+    };
 
-        // If there are no validation errors, submit the form
-        if (Object.keys(validationErrors).length === 0) {
-            const formData = { username: username, email: email, phone: phone };
-        
-            // Log the formData to check for any cyclic references
-            console.log('Form Data:', formData);
-        
-            // Verify that formData does not contain cyclic references
-            try {
-                JSON.stringify(formData);
-            } catch (error) {
-                console.error('Cyclic reference in formData:', error);
-                return; // Exit if cyclic reference is detected
-            }
-        
-            $.ajax({
-                url: "http://localhost/CODESEED/Backend/public/shadap",
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(formData),
-                success: function (response) {
-                    if (response.status_code === 1) {
-                        setFormData({
-                            username: '',
-                            email: '',
-                            phone: ''
-                        });
-                        console.log('Form submitted successfully!');
-                    } else {
-                        console.log('Form submission failed with status code:', response.status_code);
-                    }
-                },
-                error: function (xhr, status, error) {
-                    console.error('There was an error submitting the form:', error);
-                }
-            });
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: value
+        });
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        const validationErrors = validateForm();
+        if (Object.keys(validationErrors).length > 0) {
+            setErrors(validationErrors);
+            return;
         }
-        
+
+        try {
+            const response = await axios.post("http://localhost/CODESEED/Frontend/backend/database.php", formData);
+            if (response.status === 200) {
+                setSubmissionStatus('Form submitted successfully!');
+                setFormData({
+                    username: '',
+                    email: '',
+                    phone: ''
+                });
+                setErrors({});
+            } else {
+                setSubmissionStatus('Form submission failed!');
+            }
+        } catch (error) {
+            setSubmissionStatus(`Error: ${error.message}`);
+        }
     };
 
     return (
-        <div className='bg-black'>
+        <div className='bg-black animate-zoomIn'>
             <div className="bg-black text-black p-5 md:max-w-md md:mx-auto">
                 <form onSubmit={handleSubmit} className="border border-gray-400 p-4 rounded-xl">
                     <div className="mb-4">
@@ -137,6 +109,7 @@ const Form = () => {
                     <div className="mt-8">
                         <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 focus:outline-none focus:bg-blue-600">Submit</button>
                     </div>
+                    {submissionStatus && <p className="mt-4 text-white">{submissionStatus}</p>}
                 </form>
             </div>
             <hr />
